@@ -1,0 +1,28 @@
+{
+  "name": "nyevejnavne",
+  "version": "1.0.0",
+  "description": "",
+  "main": "vejnavne.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/finnjordal/nyevejnavne.git"
+  },
+  "author": "Finn Jordal",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/finnjordal/nyevejnavne/issues"
+  },
+  "homepage": "https://github.com/finnjordal/nyevejnavne",
+  "dependencies": {
+    "commander": "^2.9.0",
+    "moment": "^2.10.6",
+    "request": "^2.65.0"
+  },
+  "preferGlobal": "true",
+  "bin": {
+    "nyevejnavne": "nyevejnavne.js"
+  }
+}
