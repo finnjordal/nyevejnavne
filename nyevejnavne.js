@@ -9,6 +9,9 @@ program
   .version('0.0.1')
   .usage('[options]')
   .option('-d, --døgn [antal]', 'seneste døgn (default: 1)')
+  .option('-o, --opret', 'oprettede (default)')
+  .option('-æ, --ændret', 'ændrede')
+  .option('-s, --slet', 'slettede')
   .parse(process.argv);
 
 // if (!program.args[0]) {
@@ -31,16 +34,14 @@ if (program.døgn) {
 console.log('antal døgn: %d', antaldøgn);
 
 
-var fra= moment(new Date()).subtract({weeks: 1});
+var fra= moment(new Date()).subtract({days: antaldøgn});
 var til= moment(new Date()); 
-var url= host+"/replikering/vejstykker/haendelser?tidspunktfra="+fra.utc().toISOString()+"&tidspunkttil="+til.utc().toISOString();
-console.log('url: %s', url);
-process.exit(1);
+var url= host+"/replikering/vejstykker/haendelser";
 
 var pvejnavne = new Promise(function(resolve, reject) {
 	var options= {};
-	options.uri= 'http://dawa.aws.dk/vejnavne';
-	options.qs= {q: program.args[0], fuzzy: program.fuzzy, per_side: 20};
+	options.uri= url;
+	options.qs= {tidspunktfra: fra.utc().toISOString(), tidspunkttil: til.utc().toISOString()};
 
 	request(options, function (error, response, body) {
 		if (error) {
@@ -65,7 +66,12 @@ pvejnavne
 	.then(
 		function(vejnavne) {
 			for (var i = 0; i < vejnavne.length; i++) {
-	  		console.log(vejnavne[i].navn);
+				if (!(program.opret || program.ændret || program.slet) 
+					|| program.opret && vejnavne[i].operation === 'insert' 
+					|| program.ændret && vejnavne[i].operation === 'update' 
+					|| program.slet && vejnavne[i].operation === 'delete') {
+	  			console.log("%s %s: %s", vejnavne[i].operation ,moment(vejnavne[i].tidspunkt).local().format(),vejnavne[i].data.navn);
+	  		}
 	  	};
 		})
 	.catch(
