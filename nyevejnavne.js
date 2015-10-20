@@ -19,6 +19,7 @@ program
 //    
 //  }
 
+moment.locale('da');
 
 var host= "http://dawa.aws.dk";
 
@@ -62,17 +63,78 @@ var pvejnavne = new Promise(function(resolve, reject) {
 	});
 });
 
+
+var pvejnavne = new Promise(function(resolve, reject) {
+	var options= {};
+	options.uri= url;
+	options.qs= {tidspunktfra: fra.utc().toISOString(), tidspunkttil: til.utc().toISOString()};
+
+	request(options, function (error, response, body) {
+		if (error) {
+			reject(error);
+			return;
+		}
+		if (response.statusCode !== 200) {
+			reject(response.statusCode);
+			return;
+		}
+		try {			
+	  	var vejnavne= JSON.parse(body);
+	  	resolve(vejnavne);
+		}
+		catch(e) {
+			reject(e.message);
+		}
+	});
+});
+
+function getkommune(vejnavn) {
+	return new Promise(function(resolve, reject) {
+		var options= {};
+		options.uri= host+'/kommuner/'+vejnavn.data.kommunekode;
+
+		request(options, function (error, response, body) {
+			if (error) {
+				reject(error);
+				return;
+			}
+			if (response.statusCode !== 200) {
+				reject(response.statusCode);
+				return;
+			}
+			try {			
+		  	var kommune= JSON.parse(body);
+		  	vejnavn.data.kommunenavn= kommune.navn;
+		  	resolve(vejnavn);
+			}
+			catch(e) {
+				reject(e.message);
+			}
+		});
+	});
+}
+
 pvejnavne
 	.then(
 		function(vejnavne) {
+			var pvejnavne= [];
 			for (var i = 0; i < vejnavne.length; i++) {
 				if (!(program.opret || program.ændret || program.slet) 
 					|| program.opret && vejnavne[i].operation === 'insert' 
 					|| program.ændret && vejnavne[i].operation === 'update' 
 					|| program.slet && vejnavne[i].operation === 'delete') {
-	  			console.log("%s %s: %s", vejnavne[i].operation ,moment(vejnavne[i].tidspunkt).local().format(),vejnavne[i].data.navn);
+					pvejnavne.push(getkommune(vejnavne[i]));
 	  		}
 	  	};
+	  	Promise.all(pvejnavne)
+	  		.then(function(vejnavne) {
+	  			vejnavne.forEach(function(vejnavn) {
+  					console.log("%s %s %s (%s), %s (%s)" ,moment(vejnavn.tidspunkt).local().format('LLL'),vejnavn.operation,vejnavn.data.navn,vejnavn.data.kode,vejnavn.data.kommunenavn,vejnavn.data.kommunekode);
+	  			})
+	  		})
+	  		.catch(function(error) {	  			
+					console.log('all Fejl: '+error);
+	  		})
 		})
 	.catch(
 		function(error) {
