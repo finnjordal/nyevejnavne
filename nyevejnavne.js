@@ -98,12 +98,19 @@ function getkommune(vejnavn) {
 				reject(error);
 				return;
 			}
-			if (response.statusCode !== 200) {
-				reject(response.statusCode);
-				return;
-			}
-			try {			
-		  	var kommune= JSON.parse(body);
+
+			try {	
+				var kommune= {};
+				if (response.statusCode === 404) {
+					kommune.navn= 'Ukendt kommune';
+				}
+				else if (response.statusCode !== 200) {
+					reject(response.statusCode);
+					return;
+				}
+				else {						
+			  	kommune= JSON.parse(body);	
+				}		
 		  	vejnavn.data.kommunenavn= kommune.navn;
 		  	resolve(vejnavn);
 			}
