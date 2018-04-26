@@ -12,6 +12,7 @@ program
   .option('-o, --opret', 'oprettede (default)')
   .option('-æ, --ændret', 'ændrede')
   .option('-s, --slet', 'slettede')
+  .option('-m, --miljø [miljø]', 'DAWA miljø. Feks. dawa-p2') 
   .parse(process.argv);
 
 // if (!program.args[0]) {
@@ -22,6 +23,10 @@ program
 moment.locale('da');
 
 var host= "http://dawa.aws.dk";
+let miljø= program.miljø;
+if (miljø) {
+	host= host.replace('dawa',miljø); 
+} 
 
 var antaldøgn= 1;
 if (program.døgn) {
