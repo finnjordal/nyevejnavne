@@ -1,8 +1,8 @@
 {
-  "name": "nyevejnavne",
+  "name": "nyevejstykker",
   "version": "1.0.0",
   "description": "",
-  "main": "vejnavne.js",
+  "main": "nyevejnavne.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -17,12 +17,11 @@
   },
   "homepage": "https://github.com/finnjordal/nyevejnavne",
   "dependencies": {
-    "commander": "^2.9.0",
+    "commander": "^4.1.0",
     "moment": "^2.10.6",
-    "request": "^2.65.0"
+    "request": "^2.88.0"
   },
-  "preferGlobal": "true",
   "bin": {
-    "nyevejnavne": "nyevejnavne.js"
+    "nyevejstykker": "nyevejnavne.js"
   }
 }
